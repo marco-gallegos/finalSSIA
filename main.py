@@ -19,7 +19,7 @@ def plotBox(ax, limite_x = 10, limite_y = 10, limite_z = 10):
     z = [limite_z]
     for x_n in range(limite_x+1):
         for y_n in range(limite_y+1):
-            ax.scatter3D([x_n],[y_n],z,)
+            ax.scatter3D([x_n],[y_n],z)
 
 nombre = "plotting box"
 
