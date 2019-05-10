@@ -6,7 +6,7 @@ limite_inferior = 0
 limite_superior = 2
 
 
-def fitness(x,d=1):
+def fitness(x):
     # print(x)
     # print(type(x))
     z = 0
