@@ -22,9 +22,13 @@ import matplotlib.cm as cm
 
 
 # longitudes
-xl = 20
-yl = 20
-zl = 15
+xl = 10
+yl = 10
+zl = 10
+# limites
+limite_inferior = 0
+limite_superior = 2
+num_lamparas = 2
 # contenedor a partir de los limites
 contenedor = [ [[0 for p1 in range(zl)] for p2 in range(yl)] for p3 in range(xl)]
 contenedor = np.array(contenedor)
@@ -126,7 +130,7 @@ def fitness(indiv,long_gen, num_lamparas, contenedor_vacio):
     xi = 0
     for i in range(len(indiv)):
         tmp.append(indiv[i])
-        if len(tmp) is long_gen:
+        if len(tmp) == long_gen:
             indiv_matriz.append(tmp)
             xi += 1
             tmp=[]
@@ -141,8 +145,8 @@ def fitness(indiv,long_gen, num_lamparas, contenedor_vacio):
         for y in range(long_gen):
             if indiv_matriz[x][y] == 1:
                 numero_bulbos += 1
-                if numero_bulbos > long_gen:
-                    fitnes += 100000
+                if numero_bulbos > num_lamparas:
+                    fitnes += 1000
                     
                 bulbo_tmp = Bulbo(origen_x=x, origen_y=y, aumento_z=1, limite_x=xl-1,limite_y=yl-1,limite_z=zl)
                 contenedor_muestra = bulbo_tmp.render(contenedor_muestra)
@@ -152,13 +156,91 @@ def fitness(indiv,long_gen, num_lamparas, contenedor_vacio):
                 if contenedor_muestra[x][y][z] == 0:
                     fitnes += 1
     # menos focos de los requeridos
-    fitnes += (num_lamparas - numero_bulbos) * 100000
+    fitnes += (num_lamparas - numero_bulbos) * 100
+    # print(f"fitness : {fitnes}")
     return fitnes
             
 
-example_list = [ 0 for x in range(xl * yl) ]
-example_list[42] = 1
-example_list[92] = 1
+#example_list = [ 0 for x in range(xl * yl) ]
+#example_list[42] = 1
+#example_list[92] = 1
 
 
-fit = fitness(indiv = example_list,long_gen=xl,num_lamparas=1,contenedor_vacio=contenedor)
+#fit = fitness(indiv = example_list,long_gen=xl,num_lamparas=1,contenedor_vacio=contenedor)
+    
+def optimizar_poblacion(poblacion,num_lamparas):
+    """
+    tomar la poblacion y eliminar algunos 1 que es logico no son optimos
+    """
+    for i in range(len(poblacion)):
+        # print(f"sujeto inicial \n{poblacion[i]}")
+        
+        posiciones = []
+        lamparas = 0
+        long_sujeto = len(poblacion[i])
+        for j in range(long_sujeto):
+            if poblacion[i][j] == 1:
+                posiciones.append(j)
+                lamparas += 1
+        dif_lamparas = lamparas - num_lamparas
+        if dif_lamparas > 0:
+            distancia_inicio = 0 + posiciones[0]
+            distancia_fin = (long_sujeto-1) - posiciones[len(posiciones)-1] 
+            posicion_cambio = 0
+            if distancia_fin <= distancia_inicio:
+                posicion_tmp = len(posiciones) -1 
+                posicion_cambio = posiciones[posicion_tmp]
+            else:
+                posicion_cambio = posiciones[0]
+        poblacion[i][posicion_cambio] = 0
+        #print(f"sujeto final \n{poblacion[i]}")
+            
+                 
+            
+    
+    
+def de(fobj, bounds, mut=1, crossp=0.7, popsize=30, its=500):
+    dimensions = len(bounds)
+    # generar poblacion
+    pop = np.random.randint(limite_inferior, limite_superior, (popsize, dimensions))
+    optimizar_poblacion(poblacion=pop,num_lamparas=num_lamparas)
+    #x = input("ya termine")
+    min_b, max_b = np.asarray([(0,1)] * len(bounds)).T
+    diff = np.fabs(min_b - max_b)
+    pop_denorm = min_b + pop * diff
+    fitness = np.asarray([fobj(ind, long_gen=yl, num_lamparas=num_lamparas, contenedor_vacio=contenedor) for ind in pop_denorm])
+    best_idx = np.argmin(fitness)
+    best = pop_denorm[best_idx]
+    
+    
+    for i in range(its):
+        for j in range(popsize):
+            idxs = [idx for idx in range(popsize) if idx != j]
+            a, b, c = pop[np.random.choice(idxs, 3, replace = False)]
+            mutant = np.clip(a + mut * (b - c), 0, 1)
+            cross_points = np.random.rand(dimensions) < crossp
+            if not np.any(cross_points):
+                cross_points[np.random.randint(0, dimensions)] = True
+            trial = np.where(cross_points, mutant, pop[j])
+            trial_denorm = min_b + trial * diff
+            f = fobj(trial_denorm, long_gen=yl, num_lamparas=num_lamparas, contenedor_vacio=contenedor)
+            if f < fitness[j]:
+                fitness[j] = f
+                pop[j] = trial
+                if f < fitness[best_idx]:
+                    best_idx = j
+                    best = trial_denorm
+        if i % 100 == 0:
+            print("El MEjor De La GEneracion  :  ", end="")
+            print(best)
+            print(str(f"generacion : {i} dimension : {dimensions} performance : {fobj(best,long_gen=yl, num_lamparas=num_lamparas, contenedor_vacio=contenedor)}"))
+
+        yield best, fitness[best_idx]
+        
+    
+# la dimension debe ser xl * yl
+arr_len = xl * yl
+for d in [arr_len]:
+    it = list(de(fitness, [(limite_inferior, limite_superior)] * d, its=400))
+    x, f = zip(*it)
+    

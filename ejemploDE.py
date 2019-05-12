@@ -55,7 +55,7 @@ def de(fobj, bounds, mut=1, crossp=0.7, popsize=20, its=1000):
                 if f < fitness[best_idx]:
                     best_idx = j
                     best = trial_denorm
-        if i % 100 is 0:
+        if i % 100 == 0:
             print("El MEjor De La GEneracion  :  ", end="")
             print(best)
             print(str(f"genracion : {i} dimension : {dimensions} performance : {fobj(best)}"))
@@ -66,7 +66,7 @@ def de(fobj, bounds, mut=1, crossp=0.7, popsize=20, its=1000):
 # for d in [2, 4, 8, 16]:
 for d in [8]:
     for i in range(1):
-        it = list(de(fitness, [(limite_inferior, limite_superior)] * d, its=4000))
+        it = list(de(fitness, [(limite_inferior, limite_superior)] * d, its=1000))
         x, f = zip(*it)
 
     plt.plot(f, label='d={}'.format(d))
