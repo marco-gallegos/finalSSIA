@@ -95,11 +95,11 @@ class Bulbo:
 # mi_bulbo = Bulbo(origen_x=15,origen_y=15,aumento_z=1,limite_x=xl-1,limite_y=yl-1,limite_z=zl)
 
     
-fig = plt.figure()
-ax = fig.add_subplot(111, projection="3d")
-ax.set_xlabel("Ancho")
-ax.set_ylabel("Largo")
-ax.set_zlabel("Alto")
+#fig = plt.figure()
+#ax = fig.add_subplot(111, projection="3d")
+#ax.set_xlabel("Ancho")
+#ax.set_ylabel("Largo")
+#ax.set_zlabel("Alto")
 
 #plot sobre nuestro contenedor
 # contenedor = mi_bulbo.render(contenedor)
@@ -114,7 +114,7 @@ ax.set_zlabel("Alto")
 # plt.show()
 
 
-def fitness(indiv,long_gen, num_lamparas, contenedor_vacio):
+def fitness(indiv,long_gen, num_lamparas):
     """
     el fitnes debe tomar un array binario donde los 1 representan la presencia de lamparas
     si tiene mas unos (lamparas) de lo necesario (num lamparas) por cada extra se suma 100 * (x + y)
@@ -124,7 +124,7 @@ def fitness(indiv,long_gen, num_lamparas, contenedor_vacio):
     """
     # print(x)
     fitnes = 0
-    contenedor_muestra = contenedor_vacio
+    contenedor_muestra = [ [[0 for p1 in range(zl)] for p2 in range(yl)] for p3 in range(xl)]
     indiv_matriz = []
     tmp = []
     xi = 0
@@ -208,7 +208,7 @@ def de(fobj, bounds, mut=1, crossp=0.7, popsize=30, its=500):
     min_b, max_b = np.asarray([(0,1)] * len(bounds)).T
     diff = np.fabs(min_b - max_b)
     pop_denorm = min_b + pop * diff
-    fitness = np.asarray([fobj(ind, long_gen=yl, num_lamparas=num_lamparas, contenedor_vacio=contenedor) for ind in pop_denorm])
+    fitness = np.asarray([fobj(ind, long_gen=yl, num_lamparas=num_lamparas) for ind in pop_denorm])
     best_idx = np.argmin(fitness)
     best = pop_denorm[best_idx]
     
@@ -223,7 +223,7 @@ def de(fobj, bounds, mut=1, crossp=0.7, popsize=30, its=500):
                 cross_points[np.random.randint(0, dimensions)] = True
             trial = np.where(cross_points, mutant, pop[j])
             trial_denorm = min_b + trial * diff
-            f = fobj(trial_denorm, long_gen=yl, num_lamparas=num_lamparas, contenedor_vacio=contenedor)
+            f = fobj(trial_denorm, long_gen=yl, num_lamparas=num_lamparas)
             if f < fitness[j]:
                 fitness[j] = f
                 pop[j] = trial
@@ -233,7 +233,7 @@ def de(fobj, bounds, mut=1, crossp=0.7, popsize=30, its=500):
         if i % 100 == 0:
             print("El MEjor De La GEneracion  :  ", end="")
             print(best)
-            print(str(f"generacion : {i} dimension : {dimensions} performance : {fobj(best,long_gen=yl, num_lamparas=num_lamparas, contenedor_vacio=contenedor)}"))
+            print(str(f"generacion : {i} dimension : {dimensions} performance : {fobj(best,long_gen=yl, num_lamparas=num_lamparas)}"))
 
         yield best, fitness[best_idx]
         
@@ -241,6 +241,6 @@ def de(fobj, bounds, mut=1, crossp=0.7, popsize=30, its=500):
 # la dimension debe ser xl * yl
 arr_len = xl * yl
 for d in [arr_len]:
-    it = list(de(fitness, [(limite_inferior, limite_superior)] * d, its=400))
+    it = list(de(fitness, [(limite_inferior, limite_superior)] * d, its=800))
     x, f = zip(*it)
     
