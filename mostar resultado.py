@@ -139,7 +139,7 @@ def obtenerMatrizIndiv(indiv,long_gen):
         print("error de longitud")
     return indiv_matriz
 
-sujeto = np.load("resultado mejor.npy")
+sujeto = np.load("ultima_ejecucion.npy")
 sujeto_fitnes = fitness(indiv=sujeto, long_gen=yl, num_lamparas=2)
 print(f"Longitud : {len(sujeto)}\nfitnes {sujeto_fitnes}\nsujeto : \n{sujeto}")
 

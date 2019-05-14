@@ -243,4 +243,7 @@ arr_len = xl * yl
 for d in [arr_len]:
     it = list(de(fitness, [(limite_inferior, limite_superior)] * d, its=800))
     x, f = zip(*it)
-    
+
+mejor = x[len(x)-1]
+print(f"el mejor :\n{mejor}")
+np.save("ultima_ejecucion",mejor)
