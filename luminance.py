@@ -22,8 +22,8 @@ import matplotlib.cm as cm
 
 
 # longitudes
-xl = 10
-yl = 10
+xl = 50
+yl = 50
 zl = 10
 # limites
 limite_inferior = 0
@@ -241,7 +241,7 @@ def de(fobj, bounds, mut=1, crossp=0.7, popsize=30, its=500):
 # la dimension debe ser xl * yl
 arr_len = xl * yl
 for d in [arr_len]:
-    it = list(de(fitness, [(limite_inferior, limite_superior)] * d, its=800))
+    it = list(de(fitness, [(limite_inferior, limite_superior)] * d, its=1001))
     x, f = zip(*it)
 
 mejor = x[len(x)-1]
